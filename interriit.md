@@ -1,7 +1,3 @@
-# My First Blog Post
-
-**Date:** 2025-02-19
-
 ## Introduction
 
 In the ever-evolving landscape of artificial intelligence, the intersection of AI and enterprise applications has seen significant advancements. However, deploying AI systems that are not only intelligent but also adaptive remains a challenge, especially in sectors like finance and law where precision and up-to-date insights are paramount. Traditional generative AI models often fall short in these environments due to their static nature, outdated knowledge, and lack of real-time decision-making capabilities.
@@ -87,17 +83,26 @@ Documents often contain tables and images that hold critical information. To cap
 
 - **Integration of RAPTOR with Pathway**: We integrated the entire RAPTOR pipeline using Pathway’s VectorStore. Given page-wise content, we apply the RAPTOR Clustering algorithm to form a hierarchical tree. A JSONL file is created where the "cluster summary" is the primary data field, and metadata includes "level" and "parent_id" for hierarchical information.
 
-### Dynamic Memory Cache Module
-
-To enhance retrieval efficiency, we built a **Dynamic Memory Cache Module**. For each retrieval query, we extract the top-k chunks most relevant to the query and synthetically generate utility queries based on the content present in each chunk. These queries are cross-referenced with the current query bank to eliminate redundancy. We then construct a dynamic memory cache using the **nmslib** library, preparing an HNSW (Hierarchical Navigable Small World) graph over the utility queries. This enables fast retrieval for future queries by checking the query bank for similar queries and providing direct access to the relevant chunk if a match is found.
-
 ## Interleaved Retrieval and Reasoning: A Novel Approach
 
 ![Interleaving approach iterating between retrieval and reasoning](images/interleaving.png)
 
 ### The Need for Interleaving
 
-Traditional RAG systems perform retrieval and reasoning in separate steps, which is inefficient for complex multi-hop queries. Our system introduces a novel **interleaving RAG reasoning approach**, allowing LLMs to dynamically decide when to reason and retrieve. This approach enables the system to resolve multi-hop contextual queries more effectively.
+Now, retrieval alone isn’t enough for complex legal and financial queries. Why?
+
+Basic RAG lacks **deduction and synthesis capabilities**—essential for handling multi-hop reasoning over long documents. Several reasoning paradigms have attempted to bridge this gap:
+
+- **Chain of Thought (CoT)**: Encourages step-by-step reasoning, breaking problems into intermediate logical steps. However, CoT follows a linear path, making it inefficient for multi-hop queries that require branching logic.
+- **Tree of Thought (ToT)**: Extends CoT by exploring multiple reasoning paths, akin to a decision tree. While more flexible, ToT introduces redundancy by retrieving unnecessary information and increases token usage, especially when a reasoning path leads to a dead end.
+
+#### Experimenting with Graph-Based Reasoning
+
+We also explored **graph-based reasoning** with **ROG (Reasoning on Graphs)**. While effective when working with structured knowledge graphs (KGs), it struggled with sparsity issues. Many LLM-driven KG generation techniques fail to capture implicit logical dependencies in financial and legal documents, limiting their reliability.
+
+#### Interleaving RAG Reasoning
+
+Traditional RAG systems separate retrieval and reasoning into distinct steps, leading to inefficiencies in complex multi-hop queries. Our system introduces a novel **interleaving RAG reasoning approach**, allowing LLMs to dynamically decide when to retrieve and when to reason. By integrating retrieval within the reasoning process, our approach eliminates redundant lookups, efficiently resolving multi-hop contextual queries.
 
 ### How Interleaving Works
 
@@ -121,10 +126,14 @@ To validate our approach, we benchmarked different retrieval techniques:
 - **Vanilla RAG and its variants** performed poorly in both Mean Reciprocal Rank (MRR) and time.
 - **RAPTOR + Jina Embeddings** drastically outperformed traditional chunking, delivering high-precision retrieval without compromising speed.
 
+![rag_results](images/rag_results.png)
+
 We also experimented with various reasoning methods:
 
 - **Knowledge Graphs (KGs)**: While effective when fully structured, KGs struggle with sparse data scenarios.
 - **Interleaving RAG**: This approach bridges the gap by dynamically balancing retrieval and reasoning, outperforming traditional methods like Chain of Thought (CoT) and Tree of Thought (ToT).
+
+!interleaving_results[](images/interleaving_results.png)
 
 ## Fine-Tuning LLMs for Domain-Specific Tasks
 
@@ -132,11 +141,19 @@ We also experimented with various reasoning methods:
 
 While large models like LLaMA 2-70B or 405B are powerful, they are often resource-intensive. We fine-tuned **LLaMA-7B** using **Parameter Efficient Fine-Tuning (PEFT)** with **LoRA adapters** on an Nvidia A100. The target task was generating high-quality summaries for the CUAD dataset (Contract Understanding Dataset). Our locally loadable summarizer performed on par with larger models and even outperformed them in some cases.
 
+![summarizer_results](images/summarizer_results.png)
+
 ## Scaling Retrieval Efficiency with HNSW
 
 ![Retrieval Memory Cache using Utility HNSW Graph](images/cache.png)
 
-Long-document RAG demands fast retrieval. To address this, we built a **memory cache** for every retrieval performed by the RAG agent. We use **HNSW (Hierarchical Navigable Small World)**, an approximate nearest neighbor search technique, to create a dynamic memory cache. HNSW builds a multi-layered graph where nodes are connected based on proximity, allowing for logarithmic search time. This approach supports real-time creation and modification of graph indexes, making it perfect for dynamic RAG.
+### Dynamic Memory Cache Module
+
+To enhance retrieval efficiency in long-document RAG, we built a **Dynamic Memory Cache Module** using **HNSW (Hierarchical Navigable Small World)** for fast approximate nearest neighbor search.
+
+For each retrieval query, we extract the top-k most relevant chunks and generate utility queries based on their content. These queries are cross-referenced with the existing query bank to eliminate redundancy. We then construct a dynamic memory cache using **nmslib**, building an HNSW graph over the utility queries.
+
+This enables efficient retrieval by checking the query bank for similar queries and directly accessing relevant chunks if a match is found. HNSW’s multi-layered graph structure supports real-time updates, making it well-suited for dynamic RAG.
 
 ### Why HNSW?
 
@@ -149,6 +166,8 @@ Long-document RAG demands fast retrieval. To address this, we built a **memory c
 - **Metadata Tagging**: QA pairs, related queries, and retrieved chunks enrich the knowledge base.
 - **User-Adaptive Learning**: The system adapts to query history over time.
 - **Lightning-Fast Follow-Ups**: Stored query embeddings speed up contextualized retrieval.
+
+![cache_results](images/cache_results.png)
 
 By combining HNSW with interleaving RAG, we achieve ultra-fast, context-aware retrieval in follow-up queries, pushing long-document retrieval into the future.
 
