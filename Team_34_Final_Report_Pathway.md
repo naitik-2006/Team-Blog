@@ -13,7 +13,7 @@ our interleaving approach, built a new tool reasoning class, and extended the Ba
 **System Workflow:**  The workflow as shown in Fig 1 begins by receiving a query *Q*, a set of documents *D,* and a set of tools T from the user. The tools can be user-provided or pre-defined as well. Given the above information, the supervisor agent first activates the Code & Reasoning agent, which can interact with tools and the RAG agent. Upon activation, the RAG Agent builds a document index for *D* using Pathway's VectorStore Server. It then utilizes Jina Embeddings to perform page-level retrieval and extract the top-k most relevant pages for *Q*. The pages are chunked and indexed using RAPTOR, forming a hierarchical structure over the summary of the chunks. Once indexing is complete, the RAG agent uses an interleaving approach to iterate between reasoning and retrieval to perform multi-hop contextual reasoning and return the RAG response. The Code & Reasoning (C\&R) agent can further utilize the tools for any tool-specific task based on the RAG agent's response and user query. Finally, the Supervisor Agent consolidates the outputs and returns the response to the user.
 
 **Fig 1:** System Architecture integrated with Pathway  
-# RAG Agent
+## RAG Agent
 Retrieving information from large documents, like financial and legal reports, is challenging for existing RAG systems due to their inherent hierarchies and diverse entities such as tables, charts, and images. To address this, we designed a custom two-stage retrieval pipeline, as shown in Fig. 2, featuring page-level Jina retrieval followed by RAPTOR-based retrieval. It comprises of the following components:
 
 **1.1 Retriever Module**
