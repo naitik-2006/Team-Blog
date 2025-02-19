@@ -1,7 +1,5 @@
 
-
- 	
-
+# Introduction
 In this work, we develop a dynamic agentic RAG system for long, intricate legal and financial documents. Such a system requires orchestrating multiple agents for efficient context retrieval and reasoning, along with tool-reasoning capabilities to handle domain-specific tasks. The system should be robust and have decision making abilities to handle different user use cases and failure scenarios.
 
 Current RAG systems treat retrieval and reasoning as separate entities, first performing context retrieval and then providing the context as a prompt to the LLM to perform reasoning. However, complex multihop queries require multi-step retrieval and reasoning in an interleaved manner. To address this, we introduce a novel interleaving RAG reasoning approach that allows LLMs to dynamically decide when to reason and retrieve, allowing the system to resolve multihop contextual queries.
@@ -11,10 +9,11 @@ Additionally, most of the current systems focus on caching conversation memory f
 We integrated our RAG agent within Pathway using the VectorStore Server & Client. We added the Jina Embedding API within the BaseEmbedder class, enhanced the BaseRAGQuestionAnswering class to support  
 our interleaving approach, built a new tool reasoning class, and extended the BaseChat class to incorporate GroqChat Models for improved functionality. This integration will allow developers to use our agentic RAG pipeline using Pathway and its diverse functionalities. **Note:** All the experiments are done on Google Colab CPU environment.   
                                              
-
+# System Architecture
 **System Workflow:**  The workflow as shown in Fig 1 begins by receiving a query *Q*, a set of documents *D,* and a set of tools T from the user. The tools can be user-provided or pre-defined as well. Given the above information, the supervisor agent first activates the Code & Reasoning agent, which can interact with tools and the RAG agent. Upon activation, the RAG Agent builds a document index for *D* using Pathway's VectorStore Server. It then utilizes Jina Embeddings to perform page-level retrieval and extract the top-k most relevant pages for *Q*. The pages are chunked and indexed using RAPTOR, forming a hierarchical structure over the summary of the chunks. Once indexing is complete, the RAG agent uses an interleaving approach to iterate between reasoning and retrieval to perform multi-hop contextual reasoning and return the RAG response. The Code & Reasoning (C\&R) agent can further utilize the tools for any tool-specific task based on the RAG agent's response and user query. Finally, the Supervisor Agent consolidates the outputs and returns the response to the user.
 
 **Fig 1:** System Architecture integrated with Pathway  
+## RAG Agent
 Retrieving information from large documents, like financial and legal reports, is challenging for existing RAG systems due to their inherent hierarchies and diverse entities such as tables, charts, and images. To address this, we designed a custom two-stage retrieval pipeline, as shown in Fig. 2, featuring page-level Jina retrieval followed by RAPTOR-based retrieval. It comprises of the following components:
 
 **1.1 Retriever Module**
@@ -61,6 +60,8 @@ We use a human-in-the-loop module for jargon correction. After generating the fi
 **C. Guardrails**  
 	We integrated guardrails into the retrieval and reasoning modules to ensure safe and reliable LLM outputs. Using the Guardrails AI framework, we apply toxic language validators to filter out risks like offensive content in retrieved data. Additionally, Nemo AI Guardrails are used during Chat LLM interactions to filter responses, preventing harmful content from reaching users.  
 Most real-world use cases involve the utilization of tools along with RAG to answer user queries. In order to automate this process accurately, we have constructed a Multi-Agent Dynamic RAG Framework capable of orchestrating various agents in a synchronized manner to address user queries.   
+
+## Code & Reasoning Agent(C&R Agent)
 **A. Chain of Function Call**  
 The Code & Reasoning Agent is based on a Chain of Function Call tool reasoning paradigm, where at each step, a single python function call is performed, based on the previous history of python function calls and responses. Each tool call is executed using an interpreter to generate the function tool response.  While this approach shares similarities with ReAct\[4\], the Evaluations below clearly show that it is more token and cost-efficient due to its reliance on code-driven planning.
 
@@ -79,19 +80,20 @@ To handle these special failures, we came up with the Critic Agent \[Fig 6\]; th
 **B.1. Integration with Pathway**  
 We developed a new CodeAndReasoningAgent within Pathway’s question\_answering module for tool reasoning, that implements the features of the C\&R agent described earlier; Chain of Function Call, handling of silent API errors and python syntax errors, and dynamic tool generation.
 
+## Dynamic Tool Set Enhancement
 While the proposed reflexion policies effectively manage tool failures, there are scenarios where the available toolset may not contain the necessary tools for answering a user’s query, or where all relevant tools are corrupt. We propose two methods to handle such cases: 
 
 1. **Human-In-The-Loop** : The supervisor can prompt the user to provide function tools along with proper descriptions in order to address the query.   
 2. **Dynamic Tool Generator Agent :**  If no relevant tool is available and the user does not provide one, the supervisor employs a dynamic tool generator to create real-time agentic tools tailored to the user's needs. It uses a use case driven prompt-refinement algorithm to dynamically generate the appropriate agent to mimic tool response. For a formal explanation, refer to **Algo1** in **Appendix A.**
 
+## Conversational Module
 In the real world, it can be expected that the user would have multiple queries related to a given document. It is important to develop a component that supports conversations with the user and maintains track of the history of interactions with the user. We have developed the following modules to support conversations : 
 
 1. **Conversational Module** : This is a module that supports human-in-the-loop in order to answer any follow-up queries that the user may have.  The follow up query is requested from the user and we incorporate the most relevant answers that have already been generated by the Supervisor with the help of the Supervisor Memory Module in the follow-up query.  
 2. **Supervisor Memory Module** :  This memory module is implemented as a vector index over the previous history of generated supervisor answers. Once a follow up query is received, we perform retrieval over the memory module and provide the top-k most similar answers along with the follow-up query to aid in rapid-answering of the same.
 
-We have developed a web application with a UI using Next.js, backend services using FastAPI, AWS S3 for storage, and a PostgreSQL database. It features a model microservice using Flask for our agentic RAG system. All components are containerized with Docker, ensuring consistency across development and deployment. A Makefile with setup commands simplifies setup, running, and maintenance for developers. Refer to **Appendix G** for **complete architecture** and **User Interface**. 
-
-**Challenges Faced** and **Pathway Integration Documentation** details can be found in **Appendix D** and **F.** 
+# Evaluation and Experimentation
+## Rag Agent
 
 1) **Context Retrieval** : We use our self-curated CUAD dataset (**Appendix C**) to evaluate the retrieval performance of various retrieval techniques. Table \[1\] shows that while the RAPTOR module has the best retrieval performance, it lags behind others in time considerations.
 
@@ -129,20 +131,6 @@ While LLaMA 2-7B lacks the response quality of larger models like LLaMA 2-70B or
 
 In this work we present a Multi-Agent Dynamic RAG framework designed for accurate handling of long legal and financial documents. Leveraging Pathway’s dynamic data indexing, our framework supports multi-document question answering. It includes a RAG agent with a retrieval pipeline based on Jina Embeddings, RAPTOR indexing, and Pathway VectorStore, alongside an interleaved reasoning strategy for dynamic retrieval and reasoning decisions. A dynamic memory cache index enables fast retrieval of previously queried information. To manage complex multi-hop queries, we developed a Code & Reasoning Agent that uses the RAG agent and other tools within a dynamic toolset, employing the Chain of Function Call paradigm. Robust tool failure handling, dynamic tool generation, and guardrails ensure effective query resolution while filtering offensive content. 
 
-1. Saba Sturua, Isabelle Mohr, Mohammad Kalim Akram, Michael Günther, Bo Wang, Markus Krimmel, Feng Wang, Georgios Mastrapas, Andreas Koukounas, Nan Wang, Han Xiao, jina-embeddings-v3: Multilingual Embeddings With Task LoRA, [https://arxiv.org/abs/2409.10173](https://arxiv.org/abs/2409.10173)   
-2. Parth Sarthi, Salman Abdullah, Aditi Tuli, Shubh Khanna, Anna Goldie, Christopher D. Manning, RAPTOR: Recursive Abstractive Processing for Tree-Organized Retrieval, [https://arxiv.org/abs/2401.18059](https://arxiv.org/abs/2401.18059)    
-3. Jimin Sun, So Yeon Min, Yingshan Chang, Yonatan Bisk, Tools Fail: Detecting Silent Errors in  
-   Faulty Tools, [https://arxiv.org/abs/2406.19228](https://arxiv.org/abs/2406.19228)   
-4. Shengran Hu, Cong Lu, Jeff Clune, Automated Design of Agentic Systems,   
-5. Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, Yuan Cao,   
-   ReAct: Synergizing Reasoning and Acting in Language Models, [https://arxiv.org/abs/2210.03629](https://arxiv.org/abs/2210.03629)   
-6. Gangwoo Kim, Sungdong Kim, Byeongguk Jeon, Joonsuk Park, Jaewoo Kang, Tree of clarifications: Answering ambiguous questions with retrieval-augmented large language models,  
-   [https://arxiv.org/abs/2310.14696](https://arxiv.org/abs/2310.14696)   
-7. Dan Hendrycks, Collin Burns, Anya Chen, Spencer Ball, CUAD: An Expert-Annotated NLP Dataset for Legal Contract Review, [https://arxiv.org/abs/2103.06268](https://arxiv.org/abs/2103.06268)   
-8. Pranab Islam, Anand Kannappan, Douwe Kiela, Rebecca Qian, Nino Scherrer, Bertie Vidgen, FinanceBench: A New Benchmark for Financial Question Answering, [https://arxiv.org/abs/2311.11944](https://arxiv.org/abs/2311.11944)   
-9. Edward J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, Weizhu Chen, LoRA: Low-Rank Adaptation of Large Language Models, [https://arxiv.org/abs/2106.09685](https://arxiv.org/abs/2106.09685)   
-10. Yu. A. Malkov, D. A. Yashunin, Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs, [https://arxiv.org/abs/1603.09320](https://arxiv.org/abs/1603.09320)   
-11. Elad Levi, Eli Brosh, Matan Friedmann, Intent-based Prompt Calibration: Enhancing prompt optimization with synthetic boundary cases, [https://arxiv.org/abs/2402.03099](https://arxiv.org/abs/2402.03099)
 
     
 
