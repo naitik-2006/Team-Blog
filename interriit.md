@@ -10,6 +10,8 @@ Here is where Retrieval-Augmented Generation (RAG) systems come into play. These
 
 Imagine asking ChatGPT about a niche financial law that was recently passed. The model wouldn’t know about it because it was trained before the law existed. Pretraining or finetuning the model is an expensive option. This is where **RAG** comes into play. Instead of relying solely on pre-trained data, RAG systems retrieve relevant information from external databases or documents and use Large Language Models (LLMs) to generate contextually accurate responses.
 
+![Traditional RAG System](images/RAG_image.png)
+
 ### Why RAG is Essential
 
 1. **AI Models Can’t Store Everything**: The sheer volume of data in legal and financial domains makes it impossible for AI models to store all relevant information in their memory.
