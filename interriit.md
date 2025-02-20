@@ -196,22 +196,12 @@ Given a set of tools and a problem statement, the primary task of the LLM is to 
 `Code Driven` approach determine the order of tools execution at a single a step . Means given a task and list of tool , it first determine the order of tool in single step . And then execute it. It saves the time but can lead to wastage of tokens as it does not handle the tool failure
 
 ### **Chain of Function Call**  
-<div style="display: flex; align-items: center;">
-    <div style="width: 50%; margin-right:0.5rem">
-        Analyzing the strengths and weaknesses of ReAct and Code-Driven approaches, we developed the Chain of Function Call (CoFC) method, combining the best aspects of both.
-         <br>
-         <br>
-        <ul>
-        <li> System 1 reasoning:  Spontaneous, stochastic, pattern based.​</li>
-        <li> System 2 reasoning :  Slow,  Sequence-based, logical reasoning.​ </li>
-        </ul>
-        <br>
+
+Analyzing the strengths and weaknesses of ReAct and Code-Driven approaches, we developed the Chain of Function Call (CoFC) method, combining the best aspects of both.
+- System 1 reasoning:  Spontaneous, stochastic, pattern based. 
+- System 2 reasoning :  Slow,  Sequence-based, logical reasoning.​ 
+
 The Code & Reasoning Agent is based on a Chain of Function Call tool reasoning paradigm, where at each step, a single python function call is performed, based on the provided list of tools and their description , problem statement , previous history of python function calls and responses. Each tool call is executed using an interpreter to generate the function tool response.
-    </div>
-    <div style="width: 50%;">
-        <img src="images/cragent.png" alt="Chain of Function Call Diagram" width="100%">
-    </div>
-</div>
 
 ## **Error Handling and Reflexion in Code & Reasoning Agent**
 
