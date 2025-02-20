@@ -230,6 +230,8 @@ A Loud Tool Failure occurs when executing a tool call generates a Python error o
 This refers to the scenario where there is some internal failure in tool due to issues such as server failuers, wrong api keys, etc.
 - In case of internal error, we simply remove these faulty tools.
 
+![Loud Tool Failure](images/loud.png)
+
 ### **2. Silent Tool Failures** : 
 Silent Tool Failures refer to those tool failures where, the tool upon exection does not _raise an exception_, however, there exist logical inconsistensies that can lead to the failure of the entire tool reasoning procedure that follows ahead. We elaborate on the same below: 
 
@@ -240,6 +242,8 @@ This refers to the scenario when the LLM performs the tool call with the correct
 #### **2.2. Incorrect Function Tool Response** 
 This refers to the case where the LLM passes both the correct argument types and values to the tool, but the tool itself has _gone rogue_, that is, the returned output has no logical consistency with the reasoning procedure up till the current point. 
 - Again, to handle such errors, the critic agent checks the tool response and its consistency with the reasoning procedure up till the current point.
+- 
+![Critic Agent](images/critic.png)
 
 ### Dynamic Tool Set Enhancement
 While the proposed reflexion policies effectively manage tool failures, there are scenarios where the available toolset may not contain the necessary tools for answering a user’s query, or where all relevant tools are corrupt. We propose two methods to handle such cases: 
