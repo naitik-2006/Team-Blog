@@ -202,11 +202,11 @@ A Loud Tool Failure occurs when executing a tool call generates a Python error o
 - Resolving such tool failures needs python code correction (LLM reflexion upon the generated code).            
 
 #### **1.2. Internal Tool Failure**
-This refers to the scenario where there is some internal failure in tool due to issues such as server failueres, wrong api key provision, etc.
+This refers to the scenario where there is some internal failure in tool due to issues such as server failuers, wrong api keys, etc.
 - In case of internal error, we simply remove these faulty tools.
 
 ### **2. Silent Tool Failures** : 
-Silent Tool Failures refer to those tool failures where, the tool upon exection does not _raise an exception_, however, there exist logical inconsistensies that can lead to the failure of the entire tool reasoning procedure that follows ahead. We elaborate on the same below : 
+Silent Tool Failures refer to those tool failures where, the tool upon exection does not _raise an exception_, however, there exist logical inconsistensies that can lead to the failure of the entire tool reasoning procedure that follows ahead. We elaborate on the same below: 
 
 #### **2.1. Incorrect Input Argument** 
 This refers to the scenario when the LLM performs the tool call with the correct argument types, but the exact values of the arguments may be logically inconsistent with the reasoning process up till the current point. 
