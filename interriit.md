@@ -73,9 +73,13 @@ Retrieving information from large documents, such as financial and legal reports
 
 #### 1. Page-Level Retrieval using Jina Embeddings
 
-We use Jina Embeddings-v3, which is specifically trained for embedding generation in long-context document retrieval. These embeddings are optimized for semantic similarity in multi-page document searches, making them well-suited for page-level retrieval. Given an initial query Q and a long document D with N pages, we generate query embeddings and page-level embeddings using each page’s text content. We then construct a FAISS index and retrieve the top-k pages relevant to the query.
+We use Jina Embeddings-v3, which is specifically trained for embedding generation in long-context document retrieval. These embeddings are optimized for semantic similarity in multi-page document searches, making them well-suited for page-level retrieval. Given a query \( Q \) and a document \( D \) with \( N \) pages, we generate query embeddings and page-level embeddings, indexing them in FAISS for efficient retrieval of the most relevant pages.  
 
-- **Integration with Pathway**: Pathway’s VectorStoreServer indexes documents by storing page-level content. For a long document D with N pages, a JSONL file is created, where each entry contains page text and its corresponding page number as metadata. The top-k pages are retrieved based on the embedding similarity between the query and page text.
+- **Task-Specific LoRA**: Jina employs a **Mixture of Experts** approach with five LoRA adapters—`retrieval.query`, `retrieval.passage`, `separation`, `classification`, and `text-matching`. Each adapter is optimized for different subtasks like query embedding, passage retrieval, and semantic similarity, ensuring high-quality embeddings.  
+
+- **Alibi for Context Scaling**: Alibi (Attention with Linear Biases) helps extend retrieval capabilities by enabling models trained on short contexts to generalize effectively to longer documents.  
+
+- **Integration with Pathway**: We have extended the `BaseEmbedded` class to incorporate Jina Embeddings using API calls.  
 
 #### 2. Page-Level Preprocessing using Unstructured
 
