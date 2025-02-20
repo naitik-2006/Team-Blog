@@ -63,6 +63,8 @@ The workflow of our Dynamic Agentic RAG System begins with the user providing a 
 6. **Tool-Specific Tasks**: The C&R Agent utilizes tools for any tool-specific tasks based on the RAG Agent’s response and user query.
 7. **Response Consolidation**: The Supervisor Agent consolidates the outputs and returns the final response to the user.
 
+## RAG Agent
+
 ### Two-Stage Retrieval Pipeline
 
 ![Two-Stage Retrieval Pipeline](images/retriever.png)
@@ -71,7 +73,7 @@ Retrieving information from large documents, such as financial and legal reports
 
 #### 1. Page-Level Retrieval using Jina Embeddings
 
-We use **Jina Embeddings-v3**, which is specifically trained for embedding generation in long-context document retrieval. Given an initial query Q and a long document D with N pages, we generate query embeddings and page-level embeddings using each page’s text content. We then construct a FAISS index and retrieve the top-k pages relevant to the query.
+We use Jina Embeddings-v3, which is specifically trained for embedding generation in long-context document retrieval. These embeddings are optimized for semantic similarity in multi-page document searches, making them well-suited for page-level retrieval. Given an initial query Q and a long document D with N pages, we generate query embeddings and page-level embeddings using each page’s text content. We then construct a FAISS index and retrieve the top-k pages relevant to the query.
 
 - **Integration with Pathway**: Pathway’s VectorStoreServer indexes documents by storing page-level content. For a long document D with N pages, a JSONL file is created, where each entry contains page text and its corresponding page number as metadata. The top-k pages are retrieved based on the embedding similarity between the query and page text.
 
@@ -87,7 +89,7 @@ Unlike traditional chunking methods, which divide text into fixed, independent s
 
 - **Integration with Pathway**: Integration with Pathway requires metadata-level filtering to enable structured retrieval across hierarchical clusters.  
 
-## **Fine-Tuning LLMs for Domain-Specific Tasks**  
+### **Fine-Tuning LLMs for Domain-Specific Tasks**  
 
 ![Each document chunk is summarized and added to the Pathway vector store](images/summary_module.png)  
 
