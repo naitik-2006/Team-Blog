@@ -159,7 +159,7 @@ We also experimented with various reasoning methods:
 - **Knowledge Graphs (KGs)**: While effective when fully structured, KGs struggle with sparse data scenarios.
 - **Interleaving RAG**: This approach bridges the gap by dynamically balancing retrieval and reasoning, outperforming traditional methods like Chain of Thought (CoT) and Tree of Thought (ToT).
 
-<img src="images/Finetuning.png" alt="summarizer_results" width="600">
+<img src="images/Reason.png" alt="Reason" width="600">
 
 
 ### Scaling Retrieval Efficiency with HNSW
