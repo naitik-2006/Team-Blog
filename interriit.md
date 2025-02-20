@@ -199,12 +199,10 @@ A Loud Tool Failure occurs when executing a tool call generates a Python error o
 
 #### **1.1. Incorrect Python Syntax** 
    When the LLM generates a function call, it might incorrectly assign argument types, leading to a syntax error. The generated tool call could also be incomplete, which is also a syntax error.
-   
 - Resolving such tool failures needs python code correction (LLM reflexion upon the generated code).            
 
 #### **1.2. Internal Tool Failure**
 This refers to the scenario where there is some internal failure in tool due to issues such as server failueres, wrong api key provision, etc.
-
 - In case of internal error, we simply remove these faulty tools.
 
 ### **2. Silent Tool Failures** : 
@@ -212,12 +210,10 @@ Silent Tool Failures refer to those tool failures where, the tool upon exection 
 
 #### **2.1. Incorrect Input Argument** 
 This refers to the scenario when the LLM performs the tool call with the correct argument types, but the exact values of the arguments may be logically inconsistent with the reasoning process up till the current point. 
-
 - To handle such errors, we have devised a robust mechanism that checks the exact argument values specified by the LLM and checks for any logical inconsistencies.
 
 #### **2.2. Incorrect Function Tool Response** 
 This refers to the case where the LLM passes both the correct argument types and values to the tool, but the tool itself has _gone rogue_, that is, the returned output has no logical consistency with the reasoning procedure up till the current point. 
-
 - Again, to handle such errors, the critic agent checks the tool response and its consistency with the reasoning procedure up till the current point.
 
 ### Dynamic Tool Set Enhancement
