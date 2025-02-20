@@ -104,7 +104,7 @@ While large models like **LLaMA 2-70B** or **405B** are powerful, they are often
 
 By fine-tuning a smaller model, we achieved **on-par performance with larger models** while significantly reducing inference costs. In some cases, our locally deployed summarizer even **outperformed** API-based solutions, making it a more scalable and efficient alternative.  
 
-![summarizer_results](images/summarizer_results.png)
+<img src="images/Finetuning.png" alt="summarizer_results" width="600">
 
 ### **Interleaved Reasoning: Finding the Balance Between Retrieval and Synthesis**  
 
@@ -146,7 +146,13 @@ To validate our approach, we benchmarked different retrieval techniques:
 - **Vanilla RAG and its variants** performed poorly in both Mean Reciprocal Rank (MRR) and time.
 - **RAPTOR + Jina Embeddings** drastically outperformed traditional chunking, delivering high-precision retrieval without compromising speed.
 
-![rag_results](images/rag_results.png)
+<p align="center" width="100%">
+  <img src="images/Embedding_results.png" width="45%" height="200px" style="margin-right: 5%;" />
+  <img src="images/Retrival_results.png" width="45%" height="200px" />
+</p>
+
+
+   
 
 We also experimented with various reasoning methods:
 
@@ -180,7 +186,7 @@ This enables efficient retrieval by checking the query bank for similar queries 
 - **User-Adaptive Learning**: The system adapts to query history over time.
 - **Lightning-Fast Follow-Ups**: Stored query embeddings speed up contextualized retrieval.
 
-![cache_results](images/cache_results.png)
+![cache_results](images/folloup.png)
 
 By combining HNSW with interleaving RAG, we achieve ultra-fast, context-aware retrieval in follow-up queries, pushing long-document retrieval into the future.
 
@@ -211,38 +217,29 @@ The Code & Reasoning Agent is based on a Chain of Function Call tool reasoning p
 
 ## **Error Handling and Reflexion in Code & Reasoning Agent**
 
-In real-world scenarios, **Tool can fail** for various reasons. To ensure system robustness, we have developed mechanisms to handle Tool failures effectively. These errors are broadly classified into two types.
+In real-world scenarios, tool failures may occur for a variety of reasons. To ensure system robustness, we have developed mechanisms to handle all kinds of tool failures effectively. These errors are broadly classified into two types: 
 
+### **1. "Loud" Tool Failures**
+A Loud Tool Failure occurs when executing a tool call generates a Python error or exception. Essentially these errors are immediately visible in the form of execution failures (or loud, so to say), which makes them easier to detect. Loud tool failures can occur owing to the following causes:
 
-### **1. ***Loud*** Tool Failure**
-A Loud Tool Failure occurs when executing a tool call generates a Python error or exception. These errors are immediately visible in the form of execution failures, which makes them easier to detect. We have classified loud tool failure in two types.
+#### **1.1. Incorrect Python Syntax** 
+   When the LLM generates a function call, it might incorrectly assign argument types, leading to a syntax error. The generated tool call could also be incomplete, which is also a syntax error.
+- Resolving such tool failures needs python code correction (LLM reflexion upon the generated code).            
 
-#### **A. Incorrect Python Syntax** 
-- When the LLM generates a function call, it might incorrectly assign argument types, leading to a syntax error.
-- In order to solve such type of error we have developed ``Code Reflextion Agent``              
+#### **1.2. Internal Tool Failure**
+This refers to the scenario where there is some internal failure in tool due to issues such as server failuers, wrong api keys, etc.
+- In case of internal error, we simply remove these faulty tools.
 
-#### **B. Internal Tool Failure**
-- If there is some internal failure in tool due to server issue , wrong api key or any other internal reason . 
-- In case of internal error, we can not modify tool, as tools are provided by the user. So only option left is to remove the tool.
-- For handling such error `API REFLEXTION AGENT` is called after removing the tool.
+### **2. Silent Tool Failures** : 
+Silent Tool Failures refer to those tool failures where, the tool upon exection does not _raise an exception_, however, there exist logical inconsistensies that can lead to the failure of the entire tool reasoning procedure that follows ahead. We elaborate on the same below: 
 
-![Loud Tool Failure](images/loud.png)
+#### **2.1. Incorrect Input Argument** 
+This refers to the scenario when the LLM performs the tool call with the correct argument types, but the exact values of the arguments may be logically inconsistent with the reasoning process up till the current point. 
+- To handle such errors, we have devised a robust mechanism that checks the exact argument values specified by the LLM and checks for any logical inconsistencies.
 
-### **2. ***Silent*** Tool Failure** : 
-A Silent Tool Failure occurs when executing a tool call do not generates a Python error but still there is a error. These errors are not immediately visible in the form of execution failures, which makes them hatder to detect. We have classified loud tool failure in two types. Further it can divided into two parts
-
-#### **A. Incorrect Input Argument** 
-- If the argument pass by LLM are correct by syntax but their value does not align with what was asked in the question
-- For handling these error , we have implemented `critic agent` , which will analyze the argument passed on the basis of the task and tool description
-- If `critic agent` find any error then `silen error reflexion agent` is activated
-
-
-#### **B. Incorrect Function Tool Response** 
-- If the output generated by the tool is incorrect, unrelated, or inconsistent with the expected task, it results in a Silent Tool Failure
-- For handling such kind of error `critic agent` is utilized
-- When `critic agent` find irrelevant answer it will activate the `api reflextion agent`
-
-![Critic Agent](images/critic.png)
+#### **2.2. Incorrect Function Tool Response** 
+This refers to the case where the LLM passes both the correct argument types and values to the tool, but the tool itself has _gone rogue_, that is, the returned output has no logical consistency with the reasoning procedure up till the current point. 
+- Again, to handle such errors, the critic agent checks the tool response and its consistency with the reasoning procedure up till the current point.
 
 ### Dynamic Tool Set Enhancement
 While the proposed reflexion policies effectively manage tool failures, there are scenarios where the available toolset may not contain the necessary tools for answering a user’s query, or where all relevant tools are corrupt. We propose two methods to handle such cases: 
