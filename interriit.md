@@ -104,7 +104,7 @@ While large models like **LLaMA 2-70B** or **405B** are powerful, they are often
 
 By fine-tuning a smaller model, we achieved **on-par performance with larger models** while significantly reducing inference costs. In some cases, our locally deployed summarizer even **outperformed** API-based solutions, making it a more scalable and efficient alternative.  
 
-![summarizer_results](images/summarizer_results.png)
+![summarizer_results](images/Finetuning.png)
 
 ### **Interleaved Reasoning: Finding the Balance Between Retrieval and Synthesis**  
 
