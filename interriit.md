@@ -105,7 +105,7 @@ By fine-tuning a smaller model, we achieved **on-par performance with larger mod
 
 ![summarizer_results](images/summarizer_results.png)
 
-## **Interleaved Reasoning: Finding the Balance Between Retrieval and Synthesis**  
+### **Interleaved Reasoning: Finding the Balance Between Retrieval and Synthesis**  
 
 ![Interleaving approach iterating between retrieval and reasoning](images/interleaving.png)
 
@@ -123,7 +123,7 @@ Multi-hop queries require **multi-step retrieval and reasoning over intermediate
 
 Traditional RAG systems separate retrieval and reasoning into distinct steps, leading to inefficiencies in complex multi-hop queries. Our system introduces a novel **interleaving RAG reasoning approach**, allowing LLMs to dynamically decide when to retrieve and when to reason. By integrating retrieval within the reasoning process, our approach eliminates redundant lookups, efficiently resolving multi-hop contextual queries.
 
-### How Interleaving Works
+#### How Interleaving Works
 
 1. **Query Input**: The process starts with a user query.
 2. **LLM Generates a Thought**: The LLM produces an initial reasoning step.
@@ -132,13 +132,13 @@ Traditional RAG systems separate retrieval and reasoning into distinct steps, le
 5. **Interleaving Process**: This cycle of retrieval and reasoning continues iteratively, refining the knowledge step by step.
 6. **Final Answer**: After sufficient iterations, the LLM produces a final, well-informed answer.
 
-### Why Interleaving is Useful
+#### Why Interleaving is Useful
 
 - **Dynamic Refinement**: It allows the model to dynamically refine its reasoning based on retrieved information.
 - **Reduced Hallucination**: By grounding responses in real-time knowledge retrieval, interleaving reduces the likelihood of the model generating incorrect or hallucinated responses.
 - **Improved Performance**: Interleaving significantly improves performance in multi-step reasoning tasks, especially for complex queries.
 
-## Benchmarking and Results
+### Benchmarking and Results
 
 To validate our approach, we benchmarked different retrieval techniques:
 
@@ -155,11 +155,11 @@ We also experimented with various reasoning methods:
 !interleaving_results[](images/interleaving_results.png)
 
 
-## Scaling Retrieval Efficiency with HNSW
+### Scaling Retrieval Efficiency with HNSW
 
 ![Retrieval Memory Cache using Utility HNSW Graph](images/cache.png)
 
-### Dynamic Memory Cache Module
+#### Dynamic Memory Cache Module
 
 To enhance retrieval efficiency in long-document RAG, we built a **Dynamic Memory Cache Module** using **HNSW (Hierarchical Navigable Small World)** for fast approximate nearest neighbor search.
 
@@ -167,13 +167,13 @@ For each retrieval query, we extract the top-k most relevant chunks and generate
 
 This enables efficient retrieval by checking the query bank for similar queries and directly accessing relevant chunks if a match is found. HNSW’s multi-layered graph structure supports real-time updates, making it well-suited for dynamic RAG.
 
-### Why HNSW?
+#### Why HNSW?
 
 - **Efficiency in High Dimensions**: Unlike tree-based methods that suffer in high dimensions, HNSW maintains efficiency.
 - **Real-Time Indexing**: HNSW supports real-time creation and modification of graph indexes, ideal for dynamic systems.
 - **Memory Efficiency**: It avoids brute-force comparisons and stores embeddings in a compressed form, reducing storage overhead.
 
-### How We Use HNSW in Dynamic Memory
+#### How We Use HNSW in Dynamic Memory
 
 - **Metadata Tagging**: QA pairs, related queries, and retrieved chunks enrich the knowledge base.
 - **User-Adaptive Learning**: The system adapts to query history over time.
@@ -184,10 +184,11 @@ This enables efficient retrieval by checking the query bank for similar queries 
 By combining HNSW with interleaving RAG, we achieve ultra-fast, context-aware retrieval in follow-up queries, pushing long-document retrieval into the future.
 
 ## Code & Reasoning Agent(C&R Agent)
-**A. Chain of Function Call**  
+
+### Chain of Function Call
 The Code & Reasoning Agent is based on a Chain of Function Call tool reasoning paradigm, where at each step, a single python function call is performed, based on the previous history of python function calls and responses. Each tool call is executed using an interpreter to generate the function tool response.  While this approach shares similarities with ReAct\[4\], the Evaluations below clearly show that it is more token and cost-efficient due to its reliance on code-driven planning.
 
-**B. Error Handling and Reflexion**  
+### Error Handling and Reflexion 
 In a real world scenario it is natural that APIs can fail owing to various reasons. We have developed ingenious mechanisms to handle API errors, which we broadly classify into two types:
 
 1. **“Loud” Tool Failure or Failed Function Calls** : These errors occur owing to (i) incorrect python syntax, or (ii) an API failure. In order to handle (i), we make use of a code reflexion agent to correct the python function call. To handle (ii), we identify the faulty function tool and discard it.  
@@ -199,16 +200,16 @@ In a real world scenario it is natural that APIs can fail owing to various reaso
 
 To handle these special failures, we came up with the Critic Agent \[Fig 6\]; that is capable of identifying fallacies in both the arguments passed to the tool, and in judging the logical relevance of the tool response to the present context and the history of responses. For incorrect arguments, we invoke code reflexion to fix the arguments passed, and for irrelevant API responses, we discard the rogue API and resume the reasoning process.
 
-**B.1. Integration with Pathway**  
+### Integration with Pathway**  
 We developed a new CodeAndReasoningAgent within Pathway’s question\_answering module for tool reasoning, that implements the features of the C\&R agent described earlier; Chain of Function Call, handling of silent API errors and python syntax errors, and dynamic tool generation.
 
-## Dynamic Tool Set Enhancement
+### Dynamic Tool Set Enhancement
 While the proposed reflexion policies effectively manage tool failures, there are scenarios where the available toolset may not contain the necessary tools for answering a user’s query, or where all relevant tools are corrupt. We propose two methods to handle such cases: 
 
 1. **Human-In-The-Loop** : The supervisor can prompt the user to provide function tools along with proper descriptions in order to address the query.   
 2. **Dynamic Tool Generator Agent :**  If no relevant tool is available and the user does not provide one, the supervisor employs a dynamic tool generator to create real-time agentic tools tailored to the user's needs. It uses a use case driven prompt-refinement algorithm to dynamically generate the appropriate agent to mimic tool response. For a formal explanation, refer to **Algo1** in **Appendix A.**
 
-## Conversational Module
+### Conversational Module
 In the real world, it can be expected that the user would have multiple queries related to a given document. It is important to develop a component that supports conversations with the user and maintains track of the history of interactions with the user. We have developed the following modules to support conversations : 
 
 1. **Conversational Module** : This is a module that supports human-in-the-loop in order to answer any follow-up queries that the user may have.  The follow up query is requested from the user and we incorporate the most relevant answers that have already been generated by the Supervisor with the help of the Supervisor Memory Module in the follow-up query.  
