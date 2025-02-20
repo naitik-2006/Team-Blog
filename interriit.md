@@ -49,6 +49,7 @@ With Pathway, our Dynamic RAG system can operate seamlessly across vast datasets
 
 ## System Architecture and Workflow
 
+
 ![System Architecture](images/system_architecture.png)
 
 ### Overview of the Workflow
