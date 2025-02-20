@@ -81,26 +81,37 @@ Documents often contain tables and images that hold critical information. To cap
 
 #### 3. RAPTOR Index for Context Retrieval
 
-**RAPTOR** (Recursive Abstractive Processing for Tree-Organized Retrieval) is a bottom-up indexing approach that segments the document into text chunks, embeds them, clusters the embeddings, and summarizes each cluster with an LLM, forming a hierarchical tree structure. This approach greatly reduces indexing time and enables structured retrieval at multiple levels.
+**RAPTOR** (Recursive Abstractive Processing for Tree-Organized Retrieval) is a bottom-up indexing approach that segments a document into text chunks, embeds them, clusters the embeddings, and summarizes each cluster using an LLM, forming a hierarchical tree structure. This method significantly reduces indexing time and enables structured retrieval at multiple levels.  
 
-- **Integration of RAPTOR with Pathway**: We integrated the entire RAPTOR pipeline using Pathway’s VectorStore. Given page-wise content, we apply the RAPTOR Clustering algorithm to form a hierarchical tree. A JSONL file is created where the "cluster summary" is the primary data field, and metadata includes "level" and "parent_id" for hierarchical information.
+Unlike traditional chunking methods, which divide text into fixed, independent segments without capturing semantic links, RAPTOR ensures that related chunks are meaningfully connected. Since information in documents is inherently interconnected, treating chunks as isolated units can lead to inefficient retrieval. RAPTOR addresses this by clustering semantically related chunks and structuring them hierarchically, allowing for context-aware retrieval.  
 
-## Interleaved Retrieval and Reasoning: A Novel Approach
+- **Integration with Pathway**: Integration with Pathway requires metadata-level filtering to enable structured retrieval across hierarchical clusters.  
+
+## **Fine-Tuning LLMs for Domain-Specific Tasks**  
+
+![Each document chunk is summarized and added to the Pathway vector store](images/summary_module.png)  
+
+During our experiments, we observed that a significant amount of API compute was being consumed in generating summaries for the RAPTOR module. This made the retrieval process costly and dependent on external APIs, creating scalability issues. To address this, we explored fine-tuning a smaller model to perform high-quality summarization locally.  
+
+While large models like **LLaMA 2-70B** or **405B** are powerful, they are often resource-intensive and impractical for cost-efficient inference. Instead, we fine-tuned **LLaMA-7B** using **Parameter Efficient Fine-Tuning (PEFT)** with **LoRA adapters** on an **Nvidia A100**. The objective was to generate high-quality summaries tailored to the **CUAD dataset** (Contract Understanding Dataset), which focuses on legal document understanding.  
+
+By fine-tuning a smaller model, we achieved **on-par performance with larger models** while significantly reducing inference costs. In some cases, our locally deployed summarizer even **outperformed** API-based solutions, making it a more scalable and efficient alternative.  
+
+![summarizer_results](images/summarizer_results.png)
+
+## **Interleaved Reasoning: Finding the Balance Between Retrieval and Synthesis**  
 
 ![Interleaving approach iterating between retrieval and reasoning](images/interleaving.png)
 
 ### The Need for Interleaving
 
-Now, retrieval alone isn’t enough for complex legal and financial queries. Why?
+Why do we need specialized reasoning techniques when RAG already exists? The answer lies in its limitations—traditional RAG lacks **deduction and synthesis capabilities**, which are crucial for handling complex legal and financial queries.  
 
-Basic RAG lacks **deduction and synthesis capabilities**—essential for handling multi-hop reasoning over long documents. Several reasoning paradigms have attempted to bridge this gap:
+Multi-hop queries require **multi-step retrieval and reasoning over intermediate retrieval steps**—a challenge that basic retrieval-augmented generation (RAG) struggles to handle. Several reasoning paradigms have attempted to bridge this gap:  
 
-- **Chain of Thought (CoT)**: Encourages step-by-step reasoning, breaking problems into intermediate logical steps. However, CoT follows a linear path, making it inefficient for multi-hop queries that require branching logic.
-- **Tree of Thought (ToT)**: Extends CoT by exploring multiple reasoning paths, akin to a decision tree. While more flexible, ToT introduces redundancy by retrieving unnecessary information and increases token usage, especially when a reasoning path leads to a dead end.
-
-#### Experimenting with Graph-Based Reasoning
-
-We also explored **graph-based reasoning** with **ROG (Reasoning on Graphs)**. While effective when working with structured knowledge graphs (KGs), it struggled with sparsity issues. Many LLM-driven KG generation techniques fail to capture implicit logical dependencies in financial and legal documents, limiting their reliability.
+- **Chain of Thought (CoT)**: Encourages step-by-step reasoning by breaking problems into logical steps. However, it follows a linear path, making it inefficient for multi-hop queries that require branching logic.  
+- **Tree of Thought (ToT)**: Extends CoT by exploring multiple reasoning paths, similar to a decision tree. While more flexible, ToT introduces redundancy by retrieving unnecessary information and increases token usage, especially when a reasoning path leads to a dead end.  
+- **Graph-Based Reasoning**: We also explored graph-based reasoning with ROG (Reasoning on Graphs). While effective for structured knowledge graphs (KGs), it struggled with sparsity issues. Many LLM-driven KG generation techniques fail to capture implicit logical dependencies in financial and legal documents, limiting their reliability.  
 
 #### Interleaving RAG Reasoning
 
@@ -137,13 +148,6 @@ We also experimented with various reasoning methods:
 
 !interleaving_results[](images/interleaving_results.png)
 
-## Fine-Tuning LLMs for Domain-Specific Tasks
-
-![Each document chunk is summarized and added to the Pathway vector store](images/summary_module.png)
-
-While large models like LLaMA 2-70B or 405B are powerful, they are often resource-intensive. We fine-tuned **LLaMA-7B** using **Parameter Efficient Fine-Tuning (PEFT)** with **LoRA adapters** on an Nvidia A100. The target task was generating high-quality summaries for the CUAD dataset (Contract Understanding Dataset). Our locally loadable summarizer performed on par with larger models and even outperformed them in some cases.
-
-![summarizer_results](images/summarizer_results.png)
 
 ## Scaling Retrieval Efficiency with HNSW
 
