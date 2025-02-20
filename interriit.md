@@ -159,7 +159,7 @@ We also experimented with various reasoning methods:
 - **Knowledge Graphs (KGs)**: While effective when fully structured, KGs struggle with sparse data scenarios.
 - **Interleaving RAG**: This approach bridges the gap by dynamically balancing retrieval and reasoning, outperforming traditional methods like Chain of Thought (CoT) and Tree of Thought (ToT).
 
-!interleaving_results[](images/interleaving_results.png)
+<img src="images/Finetuning.png" alt="summarizer_results" width="600">
 
 
 ### Scaling Retrieval Efficiency with HNSW
@@ -233,6 +233,10 @@ This refers to the case where the LLM passes both the correct argument types and
 
 ![Critic Agent](images/critic.png)
 
+We evaluated custom multi-hop queries on tool reasoning in the Legal and Finance domains using curated datasets: CUAD for legal texts and Finance-10k for financial reports. MetaTool (ICLR 2024), a benchmark for tool usage and selection, was used to test tasks 1 (single-tool reasoning) and 4 (multi-tool reasoning). As a baseline we considered ReAct. Clearly, CoFC is considerably more efficient and also highly accurate. The results are illustrated in the following figures (Fig 7 , 8 , 9\)
+
+<img src="images/React_vs_agent.png" alt="summarizer_results" width="1100">
+
 ### Dynamic Tool Set Enhancement
 While the proposed reflexion policies effectively manage tool failures, there are scenarios where the available toolset may not contain the necessary tools for answering a user’s query, or where all relevant tools are corrupt. We propose two methods to handle such cases: 
 
@@ -267,7 +271,6 @@ In the real world, it can be expected that the user would have multiple queries 
 We also conducted an experiment to the effectiveness of our memory module in follow up question answering tasks. The following table gives a comparison between the average time taken to answer the first query versus the average time taken to answer the next follow up questions.  
 
                **Tab 6:** Table showing the Retrieval Time Data of the RAG pipeline with the Memory Module  
-We evaluated custom multi-hop queries on tool reasoning in the Legal and Finance domains using curated datasets: CUAD for legal texts and Finance-10k for financial reports. MetaTool (ICLR 2024), a benchmark for tool usage and selection, was used to test tasks 1 (single-tool reasoning) and 4 (multi-tool reasoning). As a baseline we considered ReAct. Clearly, CoFC is considerably more efficient and also highly accurate. The results are illustrated in the following figures (Fig 7 , 8 , 9\)
 
 **Fig 7, Fig 8, Fig 9 :** Plots of average inference time, accuracy and token count for ReAct and CoFC  on different dataset and settings.
 
