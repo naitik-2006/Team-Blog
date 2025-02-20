@@ -147,7 +147,7 @@ To validate our approach, we benchmarked different retrieval techniques:
 - **RAPTOR + Jina Embeddings** drastically outperformed traditional chunking, delivering high-precision retrieval without compromising speed.
 
 <p align="center" width = "100%">
-  <img width="33%" src="images/rag_results.png" />
+  <img width="80%" src="images/rag_results.png" />
 </p>   
 
 We also experimented with various reasoning methods:
