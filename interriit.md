@@ -186,7 +186,7 @@ This enables efficient retrieval by checking the query bank for similar queries 
 - **User-Adaptive Learning**: The system adapts to query history over time.
 - **Lightning-Fast Follow-Ups**: Stored query embeddings speed up contextualized retrieval.
 
-![cache_results](images/cache_results.png)
+![cache_results](images/folloup.png)
 
 By combining HNSW with interleaving RAG, we achieve ultra-fast, context-aware retrieval in follow-up queries, pushing long-document retrieval into the future.
 
