@@ -146,9 +146,13 @@ To validate our approach, we benchmarked different retrieval techniques:
 - **Vanilla RAG and its variants** performed poorly in both Mean Reciprocal Rank (MRR) and time.
 - **RAPTOR + Jina Embeddings** drastically outperformed traditional chunking, delivering high-precision retrieval without compromising speed.
 
-<p align="center" width = "100%">
-  <img width="80%" src="images/rag_results.png" />
-</p>   
+<p align="center" width="100%">
+  <img src="images/Embedding_results.png" width="45%" height="200px" style="margin-right: 5%;" />
+  <img src="images/Retrival_results.png" width="45%" height="200px" />
+</p>
+
+
+   
 
 We also experimented with various reasoning methods:
 
