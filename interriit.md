@@ -203,12 +203,10 @@ Given a set of tools and a problem statement, the primary task of the LLM is to 
          <br>
         <ul>
         <li> System 1 reasoning:  Spontaneous, stochastic, pattern based.​</li>
-<li> System 2 reasoning :  Slow,  Sequence-based, logical reasoning.​ </li>
+        <li> System 2 reasoning :  Slow,  Sequence-based, logical reasoning.​ </li>
         </ul>
         <br>
-
 The Code & Reasoning Agent is based on a Chain of Function Call tool reasoning paradigm, where at each step, a single python function call is performed, based on the provided list of tools and their description , problem statement , previous history of python function calls and responses. Each tool call is executed using an interpreter to generate the function tool response.
-        </pre>
     </div>
     <div style="width: 50%;">
         <img src="images/cragent.png" alt="Chain of Function Call Diagram" width="100%">
@@ -242,7 +240,7 @@ This refers to the scenario when the LLM performs the tool call with the correct
 #### **2.2. Incorrect Function Tool Response** 
 This refers to the case where the LLM passes both the correct argument types and values to the tool, but the tool itself has _gone rogue_, that is, the returned output has no logical consistency with the reasoning procedure up till the current point. 
 - Again, to handle such errors, the critic agent checks the tool response and its consistency with the reasoning procedure up till the current point.
-- 
+
 ![Critic Agent](images/critic.png)
 
 ### Dynamic Tool Set Enhancement
