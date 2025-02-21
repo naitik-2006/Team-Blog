@@ -237,7 +237,7 @@ This refers to the case where the LLM passes both the correct argument types and
 
 We evaluated custom multi-hop queries on tool reasoning in the Legal and Finance domains using curated datasets: CUAD for legal texts and Finance-10k for financial reports. MetaTool (ICLR 2024), a benchmark for tool usage and selection, was used to test tasks 1 (single-tool reasoning) and 4 (multi-tool reasoning). As a baseline we considered ReAct. Clearly, CoFC is considerably more efficient and also highly accurate. The results are illustrated in the following figures (Fig 7 , 8 , 9\)
 
-<img src="images/React_vs_agent.png" alt="summarizer_results" width="1100">
+<img src="images/React_vs2.png" width="1100">
 
 ### Dynamic Tool Set Enhancement
 While the proposed reflexion policies effectively manage tool failures, there are scenarios where the available toolset may not contain the necessary tools for answering a user’s query, or where all relevant tools are corrupt. We propose two methods to handle such cases: 
