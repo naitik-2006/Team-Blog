@@ -110,7 +110,7 @@ By fine-tuning a smaller model, we achieved **on-par performance with larger mod
 
 ![Interleaving approach iterating between retrieval and reasoning](images/interleaving.png)
 
-### The Need for Interleaving
+### The Need for Interleaved Retrieval and Reasoning
 
 Why do we need specialized reasoning techniques when RAG already exists? The answer lies in its limitations—traditional RAG lacks **deduction and synthesis capabilities**, which are crucial for handling complex legal and financial queries.  
 
