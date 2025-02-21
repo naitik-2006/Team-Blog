@@ -191,16 +191,18 @@ This enables efficient retrieval by checking the query bank for similar queries 
 By combining HNSW with interleaving RAG, we achieve ultra-fast, context-aware retrieval in follow-up queries, pushing long-document retrieval into the future.
 
 ## Code & Reasoning Agent
-Given a set of tools and a problem statement, the primary task of the LLM is to determine the optimal order in which the tools should be executed to solve the given problem. Several algorithms exist for determining tool execution order. `React` and `Code-Driven` methods are the famous one and widely used to determine the order of tools execution. \
-`React` is famous among all the algorithm , it basically given the list of tools, task and past observation determine the next tool call and then execute it and re-iterate it untill final answer is reached. One major advantage of this approach is it works well in dynamic environment means capable of handling tools failure \
-`Code Driven` approach determine the order of tools execution at a single a step . Means given a task and list of tool , it first determine the order of tool in single step . And then execute it. It saves the time but can lead to wastage of tokens as it does not handle the tool failure
+Given a set of tools and a problem statement, the primary task of the LLM is to determine the optimal order in which the tools should be executed to solve the given problem. Several algorithms exist for determining tool execution order. `React` and `Code-Driven reasoning` methods are the famous one and widely used to determine the order of tools execution. \
+`React` is fairly popular; given the list of tools, the task at hand and past observation, it generates a `thought`, after which it performs the next `action` in the form of  the next tool call and then execute it, after which the LLM is asked to perform an observation keeping mind the tool output returned. This process is repeated until the final answer is reached. Such a methodology allows for improved resistance towards tool failures, however, demands high token counts. \
+
+`Code Driven reasoning` determines the exact tools, in the correct order along with appropriate inputs at once in the form of python function calls, given the task to be performed. This allows for faster inference and token efficiency, but this method suffers from its staticity; any syntax error or tool failure renders the entire code block useless. 
 
 ### **Chain of Function Call**  
 
-Analyzing the strengths and weaknesses of ReAct and Code-Driven approaches, we developed the Chain of Function Call (CoFC) method, combining the best aspects of both.
+It is critical therefore, to achieve the best of both ReAct and Code-Driven Reasoning. More specifically, we need to combine both System 1 thinking and System 2 thinking : 
 - System 1 reasoning:  Spontaneous, stochastic, pattern based. 
 - System 2 reasoning :  Slow,  Sequence-based, logical reasoning.​ 
 
+Analyzing the strengths and weaknesses of ReAct and Code-Driven approaches, we developed the Chain of Function Call (CoFC) method, combining the best aspects of both.
 The Code & Reasoning Agent is based on a Chain of Function Call tool reasoning paradigm, where at each step, a single python function call is performed, based on the provided list of tools and their description , problem statement , previous history of python function calls and responses. Each tool call is executed using an interpreter to generate the function tool response.
 
 ## **Error Handling and Reflexion in Code & Reasoning Agent**
