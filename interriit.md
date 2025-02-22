@@ -104,7 +104,7 @@ While large models like **LLaMA 2-70B** or **405B** are powerful, they are often
 
 By fine-tuning a smaller model, we achieved **on-par performance with larger models** while significantly reducing inference costs. In some cases, our locally deployed summarizer even **outperformed** API-based solutions, making it a more scalable and efficient alternative.  
 
-<img src="images/Finetuning.png" alt="summarizer_results" width="600">
+<p align="center" width="100%"><img src="images/Finetuning.png" width="500"></p>
 
 ### **Interleaved Reasoning: Finding the Balance Between Retrieval and Synthesis**  
 
@@ -159,7 +159,7 @@ We also experimented with various reasoning methods:
 - **Knowledge Graphs (KGs)**: While effective when fully structured, KGs struggle with sparse data scenarios.
 - **Interleaving RAG**: This approach bridges the gap by dynamically balancing retrieval and reasoning, outperforming traditional methods like Chain of Thought (CoT) and Tree of Thought (ToT).
 
-<img src="images/Reason.png" alt="Reason" width="600">
+<p align="center"><img src="images/Reason.png" alt="Reason" width="500"></p>
 
 
 ### Scaling Retrieval Efficiency with HNSW
